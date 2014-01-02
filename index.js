@@ -6,7 +6,7 @@ var wrappedProto = Docker.prototype;
 function proxyPromise (method) {
   var promisey = Promise.denodeify(method);
   return function() {
-    return promisey.apply(this.subject, arguments);
+    return promisey.apply(this.$subject, arguments);
   };
 }
 
@@ -19,12 +19,13 @@ function promiseObj(target, input) {
 }
 
 function PromiseProxy(subject) {
-  var result = { subject: subject };
+  var result = Object.create(subject);
+  result.$subject = subject;
   return promiseObj(result, subject);
 }
 
 function DockerProxy(options) {
-  this.subject = new Docker(options);
+  this.$subject = new Docker(options);
 }
 
 promiseObj(DockerProxy.prototype, wrappedProto);
@@ -32,7 +33,7 @@ promiseObj(DockerProxy.prototype, wrappedProto);
 // sadly we need to wrap run directly as a promise to consolidate both 
 // of the resulting arguments.
 DockerProxy.prototype.run = function(image, command, stream) {
-  var subject = this.subject;
+  var subject = this.$subject;
   return new Promise(function(accept, reject) {
      subject.run(image, command, stream, function(err, result, container) {
         if (err) return reject(err);
@@ -46,11 +47,11 @@ DockerProxy.prototype.run = function(image, command, stream) {
 };
 
 DockerProxy.prototype.getImage = function (id) {
-  return PromiseProxy(this.subject.getImage(id));
+  return PromiseProxy(this.$subject.getImage(id));
 };
 
 DockerProxy.prototype.getContainer = function (id) {
-  return PromiseProxy(this.subject.getContainer(id));
+  return PromiseProxy(this.$subject.getContainer(id));
 };
 
 module.exports = DockerProxy;
