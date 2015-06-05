@@ -20,6 +20,8 @@ suite("dockerode-promise", function() {
     }).then(function(container) {
       assert(container.id);
       return container.start().then(function() {
+        return docker.getContainer(container.id);
+      }).then(function(container) {
         return container.wait();
       }).then(function() {
         return container.remove({force: true, v: true});
