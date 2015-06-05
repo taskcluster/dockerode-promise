@@ -13,7 +13,7 @@ suite("dockerode-promise", function() {
   test("docker.createContainer", function() {
     return docker.createContainer({
       Image: 'busybox',
-      Command: ['true'],
+      Cmd: ['true'],
       AttachStdin: false,
       AttachStdout: false,
       AttachStderr: false
@@ -33,7 +33,7 @@ suite("dockerode-promise", function() {
     var container = null;
     return docker.createContainer({
       Image: 'busybox',
-      Command: ['sleep', '30'],
+      Cmd: ['sleep', '30'],
       AttachStdin: false,
       AttachStdout: false,
       AttachStderr: false
@@ -43,15 +43,15 @@ suite("dockerode-promise", function() {
     }).then(function() {
       return container.exec({
         Cmd: ['echo', 'hello'],
-        Tty: false,
+        Tty: true,
         Detach: false,
         AttachStdout: true,
         AttachStderr: true,
-        AttachStdin: false
+        AttachStdin: true
       });
     }).then(function(exec) {
       return exec.start({
-        stdin: false,
+        stdin: true,
         stdout: true,
         stderr: true,
         stream: true,
@@ -66,9 +66,10 @@ suite("dockerode-promise", function() {
           });
         });
       }).then(function(data) {
-        console.log(data)
         assert(data.indexOf('hello') !== -1, "Expected to see hello");
       });
+    }).then(function() {
+      return container.remove({force: true, v: true});
     });
   });
 });
