@@ -24,6 +24,18 @@ function PromiseProxy(subject) {
   return promiseObj(result, subject);
 }
 
+function ContainerProxy(subject) {
+  var result = PromiseProxy(subject);
+  // Wrap exec
+  var exec = result.exec;
+  result.exec = function(opts) {
+    exec.call(result, opts).then(function(exec) {
+      return PromiseProxy(exec);
+    });
+  }
+  return result;
+}
+
 function DockerProxy(options) {
   this.$subject = new Docker(options);
 }
@@ -40,8 +52,19 @@ DockerProxy.prototype.run = function(image, command, stream) {
         accept({
           result: result,
           // re-wrap
-          container: PromiseProxy(container)
+          container: ContainerProxy(container)
         });
+     });
+  });
+};
+
+// We also have wrap createContainer manually as it returns
+DockerProxy.prototype.createContainer = function(opts) {
+  var subject = this.$subject;
+  return new Promise(function(accept, reject) {
+     subject.createContainer(opts, function(err, container) {
+        if (err) return reject(err);
+        accept(ContainerProxy(container));
      });
   });
 };
@@ -51,7 +74,7 @@ DockerProxy.prototype.getImage = function (id) {
 };
 
 DockerProxy.prototype.getContainer = function (id) {
-  return PromiseProxy(this.$subject.getContainer(id));
+  return ContainerProxy(this.$subject.getContainer(id));
 };
 
 module.exports = DockerProxy;
