@@ -26,10 +26,9 @@ function PromiseProxy(subject) {
 
 function ContainerProxy(subject) {
   var result = PromiseProxy(subject);
-  // Wrap exec
   var exec = result.exec;
-  result.exec = function(opts) {
-    exec.call(result, opts).then(function(exec) {
+  result.exec = function() {
+    return exec.apply(this, arguments).then(function(exec) {
       return PromiseProxy(exec);
     });
   }

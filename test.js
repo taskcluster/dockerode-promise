@@ -28,4 +28,47 @@ suite("dockerode-promise", function() {
       });
     })
   });
+
+  test("container.exec", function() {
+    var container = null;
+    return docker.createContainer({
+      Image: 'busybox',
+      Command: ['sleep', '30'],
+      AttachStdin: false,
+      AttachStdout: false,
+      AttachStderr: false
+    }).then(function(container_) {
+      container = container_;
+      return container.start();
+    }).then(function() {
+      return container.exec({
+        Cmd: ['echo', 'hello'],
+        Tty: false,
+        Detach: false,
+        AttachStdout: true,
+        AttachStderr: true,
+        AttachStdin: false
+      });
+    }).then(function(exec) {
+      return exec.start({
+        stdin: false,
+        stdout: true,
+        stderr: true,
+        stream: true,
+      }).then(function(result) {
+        return new Promise(function(accept) {
+          var output = "";
+          result.on('data', function(data) {
+            output += data.toString('utf-8')
+          });
+          result.once('end', function() {
+            accept(output);
+          });
+        });
+      }).then(function(data) {
+        console.log(data)
+        assert(data.indexOf('hello') !== -1, "Expected to see hello");
+      });
+    });
+  });
 });

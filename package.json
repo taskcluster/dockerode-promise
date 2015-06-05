@@ -20,10 +20,10 @@
     "url": "https://github.com/lightsofapollo/dockerode-promise/issues"
   },
   "peerDependencies": {
-    "dockerode": ">= 1.2.0"
+    "dockerode": ">= 2.1.4"
   },
   "devDependencies": {
-    "dockerode": "^1.2.0",
+    "dockerode": "^2.1.4",
     "mocha": "^2.2.5"
   },
   "dependencies": {
