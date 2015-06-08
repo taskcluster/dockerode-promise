@@ -1,6 +1,6 @@
 {
   "name": "dockerode-promise",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Dockerode wrapped in promises",
   "main": "index.js",
   "scripts": {
