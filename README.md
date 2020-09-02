@@ -1,3 +1,5 @@
+**NOTE** this library is no longer useful with dockerode-3.x, which includes native Promise support.  Older versions of dockerode have vulnerable dependencies and should not be used.
+
 # Dockerode Promise
 
 Effectively all dockerode async operations which use callbacks should
